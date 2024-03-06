@@ -1,0 +1,26 @@
+# appimage-builder recipe see https://appimage-builder.readthedocs.io for details
+version: 1
+script:
+- rm -rf AppDir || true
+- mkdir -p AppDir/usr/bin
+- cp ../bin/viamrtsp-linux-${GOARCH} AppDir/usr/bin/viamrtsp-linux-${GOARCH}
+- mkdir -p AppDir/usr/share/icons/viam/256x256/apps/
+- cp ./viam-server.png AppDir/usr/share/icons/viam/256x256/apps/viam-server.png
+- chmod 755 AppDir/usr/bin/viamrtsp-linux-${GOARCH}
+
+AppDir:
+  path: ./AppDir
+  app_info:
+    id: com.viam.rtsp-${GOARCH}
+    name: rtsp-module
+    icon: viam-server
+    version: ${MOD_VERSION}
+    exec: usr/bin/viamrtsp-linux-${GOARCH}
+    exec_args: $@
+  files:
+    include:
+    - /usr/lib/aarch64-linux-gnu/libswscale*
+    - /usr/lib/aarch64-linux-gnu/libavcodec*
+    - /usr/lib/aarch64-linux-gnu/libavformat*
+AppImage:
+  arch: ${ARCH}

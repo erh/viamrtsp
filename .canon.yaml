@@ -1,0 +1,7 @@
+viamrtsp:
+    image_amd64: ghcr.io/viamrobotics/canon:amd64
+    image_arm64: ghcr.io/viamrobotics/canon:arm64
+    update_interval: 24h0m0s
+    persistent: true
+    user: testbot
+    group: testbot

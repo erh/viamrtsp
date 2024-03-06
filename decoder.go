@@ -6,11 +6,23 @@ import (
 	"unsafe"
 )
 
-// #cgo pkg-config: libavcodec libavutil libswscale
-// #include <libavcodec/avcodec.h>
-// #include <libavutil/imgutils.h>
-// #include <libswscale/swscale.h>
+/*
+#cgo LDFLAGS: -lavcodec -lavutil -lswscale -lavformat
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
+#include <libavformat/avformat.h>
+*/
 import "C"
+
+// Decoder is a generic FFmpeg decoder.
+type decoder struct {
+	codecCtx    *C.AVCodecContext
+	srcFrame    *C.AVFrame
+	swsCtx      *C.struct_SwsContext
+	dstFrame    *C.AVFrame
+	dstFramePtr []uint8
+}
 
 func frameData(frame *C.AVFrame) **C.uint8_t {
 	return (**C.uint8_t)(unsafe.Pointer(&frame.data[0]))
@@ -20,18 +32,45 @@ func frameLineSize(frame *C.AVFrame) *C.int {
 	return (*C.int)(unsafe.Pointer(&frame.linesize[0]))
 }
 
-// h264Decoder is a wrapper around ffmpeg's H264 decoder.
-type h264Decoder struct {
-	codecCtx    *C.AVCodecContext
-	srcFrame    *C.AVFrame
-	swsCtx      *C.struct_SwsContext
-	dstFrame    *C.AVFrame
-	dstFramePtr []uint8
+// getStreamInfo opens a stream URL and retrieves its information
+func getStreamInfo(url string) string {
+	// Register all formats and codecs
+	C.avformat_network_init()
+
+	// Convert Go string to C string
+	cUrl := C.CString(url)
+	defer C.free(unsafe.Pointer(cUrl))
+
+	// Allocate an AVFormatContext.
+	var avFormatCtx *C.AVFormatContext = nil
+
+	// Try to open the stream
+	if C.avformat_open_input(&avFormatCtx, cUrl, nil, nil) != 0 {
+		return "Error: Could not open the stream"
+	}
+	defer C.avformat_close_input(&avFormatCtx)
+
+	// Try to retrieve the stream information
+	if C.avformat_find_stream_info(avFormatCtx, nil) < 0 {
+		return "Error: Could not retrieve the stream information"
+	}
+
+	// Iterate over all streams and check codec ID
+	for i := C.uint(0); i < C.uint(avFormatCtx.nb_streams); i++ {
+		stream := *(**C.AVStream)(unsafe.Pointer(uintptr(unsafe.Pointer(avFormatCtx.streams)) + uintptr(i)*unsafe.Sizeof(*avFormatCtx.streams)))
+		codecParams := stream.codecpar
+		if codecParams.codec_id == C.AV_CODEC_ID_H264 {
+			return "h264"
+		} else if codecParams.codec_id == C.AV_CODEC_ID_HEVC {
+			return "h265"
+		}
+	}
+
+	return "unknown"
 }
 
-// newH264Decoder allocates a new h264Decoder.
-func newH264Decoder() (*h264Decoder, error) {
-	codec := C.avcodec_find_decoder(C.AV_CODEC_ID_H264)
+func newDecoder(codecID C.enum_AVCodecID) (*decoder, error) {
+	codec := C.avcodec_find_decoder(codecID)
 	if codec == nil {
 		return nil, fmt.Errorf("avcodec_find_decoder() failed")
 	}
@@ -53,14 +92,14 @@ func newH264Decoder() (*h264Decoder, error) {
 		return nil, fmt.Errorf("av_frame_alloc() failed")
 	}
 
-	return &h264Decoder{
+	return &decoder{
 		codecCtx: codecCtx,
 		srcFrame: srcFrame,
 	}, nil
 }
 
 // close closes the decoder.
-func (d *h264Decoder) close() {
+func (d *decoder) close() {
 	if d.dstFrame != nil {
 		C.av_frame_free(&d.dstFrame)
 	}
@@ -73,7 +112,8 @@ func (d *h264Decoder) close() {
 	C.avcodec_close(d.codecCtx)
 }
 
-func (d *h264Decoder) decode(nalu []byte) (image.Image, error) {
+func (d *decoder) decode(nalu []byte) (image.Image, error) {
+	// 0x00000001
 	nalu = append([]uint8{0x00, 0x00, 0x00, 0x01}, []uint8(nalu)...)
 
 	// send frame to decoder

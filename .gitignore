@@ -24,5 +24,10 @@ go.work
 
 *~
 
-viamrtsp
 module.tar.gz
+bin
+*Appdir
+*.DS_Store
+rdk-droid
+FFmpeg
+ffmpeg-android

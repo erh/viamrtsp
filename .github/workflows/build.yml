@@ -1,0 +1,48 @@
+on:
+  workflow_dispatch:
+
+env:
+  GOOS: android
+  NDK_DIR: android-ndk-r26
+  NDK_ZIP: android-ndk-r26-linux.zip
+  # note: r26 won't always be 26.1.109xxx, use env vars for this and pin the DL
+  NDK_VER: '26.1.10909125'
+  NDK_DEST: Android/Sdk/ndk
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.20'
+    - name: apt deps
+      run: sudo apt update && make linux-dep
+
+    # next 3 are to download NDK from remote or cache, then unzip
+    - id: cache-ndk
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.NDK_ZIP }}
+        key: ${{ env.NDK_ZIP }}
+    - name: download ndk
+      if: steps.cache-ndk.outputs.cache-hit != 'true'
+      run: wget https://dl.google.com/android/repository/${{ env.NDK_ZIP }}
+    - name: unzip ndk
+      run: |
+        mkdir -p $HOME/$NDK_DEST
+        unzip $NDK_ZIP
+        mv $NDK_DIR $HOME/$NDK_DEST/$NDK_VER
+
+    - name: ffmpeg
+      run: make ffmpeg-android
+    - name: build
+      run: |
+        make edit-android
+        make build-android
+    - name: bundle
+      run: make module.tar.gz
+    - uses: actions/upload-artifact@v3
+      with:
+        path: module.tar.gz
