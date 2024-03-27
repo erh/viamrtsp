@@ -32,6 +32,7 @@ func realMain() error {
 	if err := netconfig.Validate(""); err != nil {
 		return err
 	}
+	viamrtsp.SetLibAVLogLevelFatal()
 
 	conf := &config.Config{
 		Network: netconfig,

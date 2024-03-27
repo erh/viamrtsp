@@ -14,3 +14,6 @@ updaterdk:
 
 module: bin/viamrtsp
 	tar czf module.tar.gz bin/viamrtsp
+
+clean:
+	rm bin/viamrtsp
