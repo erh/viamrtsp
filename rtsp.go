@@ -112,9 +112,9 @@ type rtspCamera struct {
 // Close closes the camera. It always returns nil, but because of Close() interface, it needs to return an error.
 func (rc *rtspCamera) Close(ctx context.Context) error {
 	rc.cancelFunc()
-	defer rc.activeBackgroundWorkers.Wait()
 	rc.unsubscribeAll()
 	rc.closeConnection()
+	rc.activeBackgroundWorkers.Wait()
 	return nil
 }
 
@@ -169,7 +169,6 @@ func (rc *rtspCamera) reconnectClient() (err error) {
 	if rc == nil {
 		return errors.New("rtspCamera is nil")
 	}
-	rc.logger.Warnf("reconnectClient called")
 
 	rc.closeConnection()
 
@@ -231,8 +230,6 @@ func (rc *rtspCamera) reconnectClient() (err error) {
 
 // initH264 initializes the H264 decoder and sets up the client to receive H264 packets.
 func (rc *rtspCamera) initH264(session *description.Session) (err error) {
-	rc.logger.Info("initH264 BEGIN")
-	defer rc.logger.Info("initH264 END")
 	// setup RTP/H264 -> H264 decoder
 	var f *format.H264
 	var forma format.Format
@@ -349,15 +346,12 @@ func (rc *rtspCamera) initH264(session *description.Session) (err error) {
 		}
 	}
 
-	resp, err := rc.client.Setup(session.BaseURL, media, 0, 0)
+	_, err = rc.client.Setup(session.BaseURL, media, 0, 0)
 	if err != nil {
 		return err
 	}
-	rc.logger.Infow("Setup", "resp", resp)
 
-	rc.logger.Infof("about to call OnPacketRTP rc.client: %p", rc.client)
 	rc.client.OnPacketRTP(media, forma, onPacketRTP)
-	rc.logger.Infow("called it")
 
 	return nil
 }
@@ -532,7 +526,6 @@ func (rc *rtspCamera) Unsubscribe(ctx context.Context, id camera.StreamSubscript
 }
 
 func newRTSPCamera(ctx context.Context, name resource.Name, conf *Config, logger logging.Logger) (camera.Camera, error) {
-	logger.Info("newRTSPCamera called")
 	u, err := base.ParseURL(conf.Address)
 	if err != nil {
 		return nil, err

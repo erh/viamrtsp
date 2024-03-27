@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"go.uber.org/zap/zapcore"
 	"go.viam.com/rdk/components/camera"
 	"go.viam.com/rdk/logging"
 	"go.viam.com/rdk/module"
@@ -21,7 +22,10 @@ func mainWithArgs(ctx context.Context, args []string, logger logging.Logger) err
 		return err
 	}
 
-	viamrtsp.SetLibAVLogLevelFatal()
+	if logger.Level() != zapcore.DebugLevel {
+		viamrtsp.SetLibAVLogLevelFatal()
+	}
+
 	err = myMod.AddModelFromRegistry(ctx, camera.API, viamrtsp.ModelH264)
 	if err != nil {
 		return err
