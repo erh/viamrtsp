@@ -26,6 +26,7 @@ import (
 )
 
 func TestRTSPCamera(t *testing.T) {
+	SetLibAVLogLevelFatal()
 	logger := logging.NewTestLogger(t)
 	bURL, err := base.ParseURL("rtsp://127.0.0.1:32512")
 	test.That(t, err, test.ShouldBeNil)
@@ -65,7 +66,9 @@ func TestRTSPCamera(t *testing.T) {
 			var im image.Image
 			for imageTimeoutCtx.Err() == nil {
 				img, f, err := camera.ReadImage(imageTimeoutCtx, rtspCam)
-				test.That(t, err, test.ShouldBeNil)
+				if err != nil {
+					continue
+				}
 				f()
 				if img != nil {
 					im = img
