@@ -1,13 +1,18 @@
 module github.com/erh/viamrtsp
 
-go 1.19
+go 1.21
+
+toolchain go1.21.8
 
 require (
-	github.com/bluenviron/gortsplib/v3 v3.7.0
-	github.com/pion/rtp v1.8.2
+	github.com/bluenviron/gortsplib/v4 v4.8.0
+	github.com/bluenviron/mediacommon v1.9.2
+	github.com/google/uuid v1.6.0
+	github.com/pion/rtp v1.8.3
 	github.com/pkg/errors v0.9.1
 	go.viam.com/rdk v0.23.2
-	go.viam.com/utils v0.1.60
+	go.viam.com/test v1.1.1-0.20220913152726-5da9916c08a2
+	go.viam.com/utils v0.1.71
 )
 
 require (
@@ -27,7 +32,6 @@ require (
 	github.com/benbjohnson/clock v1.3.3 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/blackjack/webcam v0.0.0-20230509180125-87693b3f29dc // indirect
-	github.com/bluenviron/mediacommon v0.5.1 // indirect
 	github.com/bufbuild/protocompile v0.5.1 // indirect
 	github.com/campoy/embedmd v1.0.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
@@ -64,7 +68,6 @@ require (
 	github.com/gonuts/binary v0.2.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/s2a-go v0.1.4 // indirect
-	github.com/google/uuid v1.3.1 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.11.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
@@ -104,7 +107,7 @@ require (
 	github.com/pion/mdns v0.0.8 // indirect
 	github.com/pion/mediadevices v0.5.1-0.20231017204133-3c9fee958efe // indirect
 	github.com/pion/randutil v0.1.0 // indirect
-	github.com/pion/rtcp v1.2.10 // indirect
+	github.com/pion/rtcp v1.2.14 // indirect
 	github.com/pion/sctp v1.8.8 // indirect
 	github.com/pion/sdp/v3 v3.0.6 // indirect
 	github.com/pion/srtp/v2 v2.0.17 // indirect
@@ -118,7 +121,7 @@ require (
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/smartystreets/assertions v1.13.0 // indirect
 	github.com/srikrsna/protoc-gen-gotag v0.6.2 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/viam-labs/go-libjpeg v0.3.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
@@ -134,17 +137,16 @@ require (
 	go.uber.org/goleak v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	go.viam.com/api v0.1.274 // indirect
-	go.viam.com/test v1.1.1-0.20220913152726-5da9916c08a2 // indirect
+	go.viam.com/api v0.1.277 // indirect
 	goji.io v2.0.2+incompatible // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/exp v0.0.0-20230725012225-302865e7556b // indirect
 	golang.org/x/image v0.14.0 // indirect
 	golang.org/x/mod v0.11.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
@@ -162,3 +164,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 )
+
+replace go.viam.com/rdk => /Users/nicksanford/rdk

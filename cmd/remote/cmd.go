@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"go.uber.org/zap/zapcore"
 	"go.viam.com/rdk/components/camera"
 	"go.viam.com/rdk/config"
 	"go.viam.com/rdk/module"
@@ -31,6 +32,10 @@ func realMain() error {
 
 	if err := netconfig.Validate(""); err != nil {
 		return err
+	}
+
+	if logger.Level() != zapcore.DebugLevel {
+		viamrtsp.SetLibAVLogLevelFatal()
 	}
 
 	conf := &config.Config{

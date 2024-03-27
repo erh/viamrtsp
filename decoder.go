@@ -120,6 +120,12 @@ func avError(avErr C.int) string {
 	return C.GoString(&errbuf[0])
 }
 
+// SetLibAVLogLevelFatal sets libav errors to fatal log level
+// to cut down on log spam
+func SetLibAVLogLevelFatal() {
+	C.av_log_set_level(C.AV_LOG_FATAL)
+}
+
 // newDecoder creates a new decoder for the given codec.
 func newDecoder(codecID C.enum_AVCodecID) (*decoder, error) {
 	codec := C.avcodec_find_decoder(codecID)
