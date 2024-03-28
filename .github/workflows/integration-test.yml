@@ -1,0 +1,78 @@
+name: Integration test with mediamtx stream
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.19
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo add-apt-repository universe &&
+        sudo apt-get install -y libswscale-dev libavcodec-dev libavformat-dev libavutil-dev ffmpeg libfuse2
+        
+    - name: Download and extract mediamtx
+      run: |
+        wget https://github.com/bluenviron/mediamtx/releases/download/v1.6.0/mediamtx_v1.6.0_linux_amd64.tar.gz
+        tar -xzf mediamtx_v1.6.0_linux_amd64.tar.gz
+        
+    - name: Run mediamtx
+      run: ./mediamtx &
+      
+    - name: Run fake RTSP camera
+      run: ffmpeg -re -f lavfi -i testsrc=size=640x480:rate=30 -vcodec libx264 -pix_fmt yuv420p -f rtsp -rtsp_transport tcp rtsp://0.0.0.0:8554/live.stream &
+      
+    - name: Build viamrtsp binary
+      run: make bin/viamrtsp
+      
+    - name: Install viam-server
+      run: |
+        curl https://storage.googleapis.com/packages.viam.com/apps/viam-server/viam-server-stable-x86_64.AppImage -o viam-server
+        chmod 755 viam-server
+        sudo ./viam-server --aix-install
+
+    # Generate config from within yml because relative paths don't reliably work for module exec paths
+    - name: Generate viam-server config
+      run: |
+        echo '{
+          "components": [
+            {
+              "name": "ip-cam",
+              "namespace": "rdk",
+              "type": "camera",
+              "model": "erh:viamrtsp:rtsp-h264",
+              "attributes": {
+                "rtsp_address": "rtsp://localhost:8554/live.stream"
+              },
+              "depends_on": []
+            }
+          ],
+          "modules": [
+            {
+              "type": "local",
+              "name": "viamrtsp",
+              "executable_path": "'$(realpath bin/viamrtsp)'"
+            }
+          ]
+        }' > integration-test-config.json
+        
+    # Sleep to give time for server to start
+    - name: Run viam-server
+      run: |
+        viam-server -debug -config ./integration-test-config.json &
+        sleep 10
+
+    - name: Build and run test binary
+      run: |
+        go build -o testBinary ./test/client.go
+        chmod +x ./testBinary
+        ./testBinary
