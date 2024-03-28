@@ -26,9 +26,11 @@ func realMain() error {
 		return err
 	}
 
-	err = myMod.AddModelFromRegistry(ctx, camera.API, viamrtsp.ModelH264)
-	if err != nil {
-		return err
+	for _, model := range viamrtsp.Models {
+		err = myMod.AddModelFromRegistry(ctx, camera.API, model)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = myMod.Start(ctx)
