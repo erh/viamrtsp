@@ -19,9 +19,9 @@ require (
 	github.com/viam-modules/video-store v0.0.12
 	github.com/viamrobotics/zeroconf v1.0.14
 	go.uber.org/zap v1.28.0
-	go.viam.com/rdk v1.4.0
+	go.viam.com/rdk v1.6.0
 	go.viam.com/test v1.2.5
-	go.viam.com/utils v0.11.0
+	go.viam.com/utils v0.12.0
 	golang.org/x/net v0.58.0
 )
 
@@ -263,8 +263,8 @@ require (
 	google.golang.org/api v0.271.0 // indirect
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260610212136-7ab31c22f7ad // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260818201246-1b0934165a6f // indirect
-	google.golang.org/grpc v1.83.1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260831171406-18b4a7587f8a // indirect
+	google.golang.org/grpc v1.83.2 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
